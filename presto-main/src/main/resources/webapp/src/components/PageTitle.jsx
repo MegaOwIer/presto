@@ -112,7 +112,8 @@ export class PageTitle extends React.Component<Props, State> {
                                         <a href="/ui/"><img src="assets/logo.png"/></a>
                                     </td>
                                     <td>
-                                        <span className="navbar-brand">{this.props.title}</span>
+                                        <img className="navbar-brand" src="assets/project-name.png"/>
+                                        {/*<span className="navbar-brand">{this.props.title}</span>*/}
                                     </td>
                                 </tr>
                                 </tbody>
@@ -126,6 +127,7 @@ export class PageTitle extends React.Component<Props, State> {
                                         <span className="text uppercase" id="version-number">{info.nodeVersion.version}</span>
                                     </span>
                                 </li>
+                                <br/>
                                 <li>
                                     <span className="navbar-cluster-info">
                                         <span className="uppercase">Environment</span><br/>

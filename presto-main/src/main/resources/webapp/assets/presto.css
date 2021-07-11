@@ -167,26 +167,37 @@ pre {
 .navbar {
     padding: 0 5px 0 5px;
     border-bottom: 1px solid #1EDCFF;
+    min-height: 125px;
 }
 
 .navbar-brand {
     color: #fff;
     text-transform: uppercase;
-    font-size: 24px;
+    font-size: 36px;
     padding-left: 30px;
     padding-top: 25px;
 }
 
 .navbar img {
-    width: 40px;
-    height: auto;
-    padding-top: 17px;
+    width: auto;
+    height: 100px;
+    padding-top: 15px;
+}
+
+@media (min-width: 768px) {
+    .navbar > .container .navbar-brand,
+    .navbar > .container-fluid .navbar-brand {
+        height: 95px;
+        padding-left: 30px;
+        padding-top: 25px;
+        margin-left: 0;
+    }
 }
 
 .navbar-cluster-info {
     display: block;
     box-sizing: border-box;
-    padding: 15px;
+    padding: 12px;
     position: relative;
     color: #666;
     font-size: 11px;
@@ -343,6 +354,25 @@ pre {
     padding: 0 40px 5px 5px;
     border: none;
     z-index: 100;
+}
+
+/** Query input **/
+/** =========== **/
+
+#query-input-title {
+    font-size: 22px;
+    background-color: #696E77;
+    padding: 3px 3px 3px 7px;
+    text-transform: uppercase;
+    color: #fff;
+    border-top: 1px solid #9DA4AF;
+}
+
+#query-input {
+    padding: 5px 0 0 15px;
+    border-bottom: 1px #424242 solid;
+    border-left: 1px #424242 solid;
+    border-right: 1px #424242 solid;
 }
 
 /** Query list **/
