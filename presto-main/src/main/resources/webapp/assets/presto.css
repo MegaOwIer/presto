@@ -43,6 +43,14 @@ pre {
 /** Boostrap overrides **/
 /** ================== **/
 
+.panel {
+    background-color: transparent;
+}
+
+.panel-footer {
+    background-color: transparent;
+}
+
 .container {
     min-width: 960px;
     width: auto !important;
@@ -401,7 +409,7 @@ pre {
 
 .query {
     border-bottom: 1px #424242 solid;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     margin-left: -15px;
     padding-left: 15px;
 }
@@ -441,13 +449,10 @@ pre {
 
 .query-header {
     padding: 4px 0 4px 0;
-    background-color: #1b1b1b;
     margin: 0;
 }
 
 .query-header-queryid {
-    margin-left: -15px;
-    margin-right: -35px;
     padding: 8px 0 8px 0;
 }
 

@@ -16,55 +16,16 @@ import React from "react";
 
 import {
     formatDataSizeBytes,
-    formatShortTime,
     getHumanReadableState,
     getProgressBarPercentage,
     getProgressBarTitle,
     getQueryStateColor,
-    GLYPHICON_DEFAULT,
     GLYPHICON_HIGHLIGHT,
     parseDataSize,
     parseDuration,
-    truncateString
 } from "../utils";
 
 export class QueryListItem extends React.Component {
-    static stripQueryTextWhitespace(queryText) {
-        const lines = queryText.split("\n");
-        let minLeadingWhitespace = -1;
-        for (let i = 0; i < lines.length; i++) {
-            if (minLeadingWhitespace === 0) {
-                break;
-            }
-
-            if (lines[i].trim().length === 0) {
-                continue;
-            }
-
-            const leadingWhitespace = lines[i].search(/\S/);
-
-            if (leadingWhitespace > -1 && ((leadingWhitespace < minLeadingWhitespace) || minLeadingWhitespace === -1)) {
-                minLeadingWhitespace = leadingWhitespace;
-            }
-        }
-
-        let formattedQueryText = "";
-
-        for (let i = 0; i < lines.length; i++) {
-            const trimmedLine = lines[i].substring(minLeadingWhitespace).replace(/\s+$/g, '');
-
-            if (trimmedLine.length > 0) {
-                formattedQueryText += trimmedLine;
-
-                if (i < (lines.length - 1)) {
-                    formattedQueryText += "\n";
-                }
-            }
-        }
-
-        return truncateString(formattedQueryText, 300);
-    }
-
     renderWarning() {
         const query = this.props.query;
         if (query.warnings && query.warnings.length) {
@@ -99,21 +60,21 @@ export class QueryListItem extends React.Component {
                     </span>
             </div>);
 
-        const timingDetails = (
-            <div className="col-xs-12 tinystat-row">
-                <span className="tinystat" data-toggle="tooltip" data-placement="top" title="Wall time spent executing the query (not including queued time)">
-                    <span className="glyphicon glyphicon-hourglass" style={GLYPHICON_HIGHLIGHT}/>&nbsp;&nbsp;
-                    {query.queryStats.executionTime}
-                </span>
-                <span className="tinystat" data-toggle="tooltip" data-placement="top" title="Total query wall time">
-                    <span className="glyphicon glyphicon-time" style={GLYPHICON_HIGHLIGHT}/>&nbsp;&nbsp;
-                    {query.queryStats.elapsedTime}
-                </span>
-                <span className="tinystat" data-toggle="tooltip" data-placement="top" title="CPU time spent by this query">
-                    <span className="glyphicon glyphicon-dashboard" style={GLYPHICON_HIGHLIGHT}/>&nbsp;&nbsp;
-                    {query.queryStats.totalCpuTime}
-                </span>
-            </div>);
+        // const timingDetails = (
+        //     <div className="col-xs-12 tinystat-row">
+        //         <span className="tinystat" data-toggle="tooltip" data-placement="top" title="Wall time spent executing the query (not including queued time)">
+        //             <span className="glyphicon glyphicon-hourglass" style={GLYPHICON_HIGHLIGHT}/>&nbsp;&nbsp;
+        //             {query.queryStats.executionTime}
+        //         </span>
+        //         <span className="tinystat" data-toggle="tooltip" data-placement="top" title="Total query wall time">
+        //             <span className="glyphicon glyphicon-time" style={GLYPHICON_HIGHLIGHT}/>&nbsp;&nbsp;
+        //             {query.queryStats.elapsedTime}
+        //         </span>
+        //         <span className="tinystat" data-toggle="tooltip" data-placement="top" title="CPU time spent by this query">
+        //             <span className="glyphicon glyphicon-dashboard" style={GLYPHICON_HIGHLIGHT}/>&nbsp;&nbsp;
+        //             {query.queryStats.totalCpuTime}
+        //         </span>
+        //     </div>);
 
         const memoryDetails = (
             <div className="col-xs-12 tinystat-row">
@@ -131,77 +92,47 @@ export class QueryListItem extends React.Component {
                 </span>
             </div>);
 
-        let user = (<span>{query.session.user}</span>);
-        if (query.session.principal) {
-            user = (
-                <span>{query.session.user}<span className="glyphicon glyphicon-lock-inverse" style={GLYPHICON_DEFAULT}/></span>
-            );
-        }
-
         return (
             <div className="query">
-                <div className="row">
-                    <div className="col-xs-4">
-                        <div className="row stat-row query-header query-header-queryid">
-                            <div className="col-xs-9" data-placement="bottom">
-                                <a href={"query.html?" + query.queryId} target="_blank" data-toggle="tooltip" title="Query ID">{query.queryId}</a>
-                                {this.renderWarning()}
-                            </div>
-                            <div className="col-xs-3 query-header-timestamp" data-toggle="tooltip" data-placement="bottom" title="Submit time">
-                                <span>{formatShortTime(new Date(Date.parse(query.queryStats.createTime)))}</span>
-                            </div>
-                        </div>
-                        <div className="row stat-row">
-                            <div className="col-xs-12">
-                                <span data-toggle="tooltip" data-placement="right" title="User">
-                                    <span className="glyphicon glyphicon-user" style={GLYPHICON_DEFAULT}/>&nbsp;&nbsp;
-                                    <span>{truncateString(user, 35)}</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="row stat-row">
-                            <div className="col-xs-12">
-                                <span data-toggle="tooltip" data-placement="right" title="Source">
-                                    <span className="glyphicon glyphicon-log-in" style={GLYPHICON_DEFAULT}/>&nbsp;&nbsp;
-                                    <span>{truncateString(query.session.source, 35)}</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="row stat-row">
-                            <div className="col-xs-12">
-                                <span data-toggle="tooltip" data-placement="right" title="Resource Group">
-                                    <span className="glyphicon glyphicon-road" style={GLYPHICON_DEFAULT}/>&nbsp;&nbsp;
-                                    <span>{truncateString(query.resourceGroupId ? query.resourceGroupId.join(".") : "n/a", 35)}</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="row stat-row">
-                            {splitDetails}
-                        </div>
-                        <div className="row stat-row">
-                            {timingDetails}
-                        </div>
-                        <div className="row stat-row">
-                            {memoryDetails}
-                        </div>
-                    </div>
-                    <div className="col-xs-8">
-                        <div className="row query-header">
-                            <div className="col-xs-12 query-progress-container">
-                                <div className="progress">
-                                    <div className="progress-bar progress-bar-info" role="progressbar" aria-valuenow={getProgressBarPercentage(query)} aria-valuemin="0"
-                                         aria-valuemax="100" style={progressBarStyle}>
-                                        {getProgressBarTitle(query)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row query-row-bottom">
-                            <div className="col-xs-12">
-                                <pre className="query-snippet"><code className="sql">{QueryListItem.stripQueryTextWhitespace(query.query)}</code></pre>
+                <div className="row query-header">
+                    <div className="col-xs-12 query-progress-container">
+                        <div className="progress">
+                            <div className="progress-bar progress-bar-info" role="progressbar" aria-valuenow={getProgressBarPercentage(query)} aria-valuemin="0"
+                                 aria-valuemax="100" style={progressBarStyle}>
+                                {getProgressBarTitle(query)}
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div className="row stat-row query-header query-header-queryid">
+                    <div data-placement="bottom">
+                        Query ID: &nbsp;&nbsp; <a href={"query.html?" + query.queryId} target="_blank" data-toggle="tooltip" title="Query ID">{query.queryId}</a>
+                        {this.renderWarning()}
+                    </div>
+                </div>
+
+                {/* Emphasise running time. */}
+                <div className="row stat-row">
+                    <div className="col-xs-6">
+                        <span data-toggle="tooltip" data-placement="top" style={{fontSize: "24px"}}
+                              title="Real Time (not including queued time)">
+                            &nbsp;&nbsp; Real Time: {query.queryStats.executionTime}
+                        </span>
+                    </div>
+                    <div className="col-xs-6">
+                        <span data-toggle="tooltip" data-placement="top" style={{fontSize: "24px"}}
+                              title="CPU Time">
+                            &nbsp;&nbsp; CPU Time: {query.queryStats.totalCpuTime}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="row stat-row">
+                    {splitDetails}
+                </div>
+                <div className="row stat-row">
+                    {memoryDetails}
                 </div>
             </div>
         );
@@ -261,10 +192,10 @@ export class QueryList extends React.Component {
             reorderInterval: 5000,
             currentSortType: SORT_TYPE.CREATED,
             currentSortOrder: SORT_ORDER.DESCENDING,
-            stateFilters: [FILTER_TYPE.RUNNING, FILTER_TYPE.QUEUED],
+            stateFilters: [FILTER_TYPE.RUNNING, FILTER_TYPE.QUEUED, FILTER_TYPE.FINISHED],
             errorTypeFilters: [ERROR_TYPE.INTERNAL_ERROR, ERROR_TYPE.INSUFFICIENT_RESOURCES, ERROR_TYPE.EXTERNAL],
-            searchString: '',
-            maxQueries: 100,
+            searchString: props.searchString,
+            maxQueries: 1,
             lastRefresh: Date.now(),
             lastReorder: Date.now(),
             initialized: false
@@ -568,15 +499,7 @@ export class QueryList extends React.Component {
     render() {
         let queryList = <DisplayedQueriesList queries={this.state.displayedQueries}/>;
         if (this.state.displayedQueries === null || this.state.displayedQueries.length === 0) {
-            let label = (<div className="loader">Loading...</div>);
-            if (this.state.initialized) {
-                if (this.state.allQueries === null || this.state.allQueries.length === 0) {
-                    label = "No queries";
-                }
-                else {
-                    label = "No queries matched filters";
-                }
-            }
+            let label = "No queries from WebUI";
             queryList = (
                 <div className="row error-message">
                     <div className="col-xs-12"><h4>{label}</h4></div>
@@ -586,70 +509,6 @@ export class QueryList extends React.Component {
 
         return (
             <div>
-                <div className="row toolbar-row">
-                    <div className="col-xs-12 toolbar-col">
-                        <div className="input-group input-group-sm">
-                            <input type="text" className="form-control form-control-small search-bar" placeholder="User, source, query ID, resource group, or query text"
-                                   onChange={this.handleSearchStringChange} value={this.state.searchString}/>
-                            <span className="input-group-addon filter-addon">State:</span>
-                            <div className="input-group-btn">
-                                {this.renderFilterButton(FILTER_TYPE.RUNNING, "Running")}
-                                {this.renderFilterButton(FILTER_TYPE.QUEUED, "Queued")}
-                                {this.renderFilterButton(FILTER_TYPE.FINISHED, "Finished")}
-                                <button type="button" id="error-type-dropdown" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Failed <span className="caret"/>
-                                </button>
-                                <ul className="dropdown-menu error-type-dropdown-menu">
-                                    {this.renderErrorTypeListItem(ERROR_TYPE.INTERNAL_ERROR, "Internal Error")}
-                                    {this.renderErrorTypeListItem(ERROR_TYPE.EXTERNAL, "External Error")}
-                                    {this.renderErrorTypeListItem(ERROR_TYPE.INSUFFICIENT_RESOURCES, "Resources Error")}
-                                    {this.renderErrorTypeListItem(ERROR_TYPE.USER_ERROR, "User Error")}
-                                </ul>
-                            </div>
-                            &nbsp;
-                            <div className="input-group-btn">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Sort <span className="caret"/>
-                                </button>
-                                <ul className="dropdown-menu">
-                                    {this.renderSortListItem(SORT_TYPE.CREATED, "Creation Time")}
-                                    {this.renderSortListItem(SORT_TYPE.ELAPSED, "Elapsed Time")}
-                                    {this.renderSortListItem(SORT_TYPE.CPU, "CPU Time")}
-                                    {this.renderSortListItem(SORT_TYPE.EXECUTION, "Execution Time")}
-                                    {this.renderSortListItem(SORT_TYPE.CURRENT_MEMORY, "Current Memory")}
-                                    {this.renderSortListItem(SORT_TYPE.CUMULATIVE_MEMORY, "Cumulative User Memory")}
-                                </ul>
-                            </div>
-                            &nbsp;
-                            <div className="input-group-btn">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Reorder Interval <span className="caret"/>
-                                </button>
-                                <ul className="dropdown-menu">
-                                    {this.renderReorderListItem(1000, "1s")}
-                                    {this.renderReorderListItem(5000, "5s")}
-                                    {this.renderReorderListItem(10000, "10s")}
-                                    {this.renderReorderListItem(30000, "30s")}
-                                    <li role="separator" className="divider"/>
-                                    {this.renderReorderListItem(0, "Off")}
-                                </ul>
-                            </div>
-                            &nbsp;
-                            <div className="input-group-btn">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Show <span className="caret"/>
-                                </button>
-                                <ul className="dropdown-menu">
-                                    {this.renderMaxQueriesListItem(20, "20 queries")}
-                                    {this.renderMaxQueriesListItem(50, "50 queries")}
-                                    {this.renderMaxQueriesListItem(100, "100 queries")}
-                                    <li role="separator" className="divider"/>
-                                    {this.renderMaxQueriesListItem(0, "All queries")}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 {queryList}
             </div>
         );

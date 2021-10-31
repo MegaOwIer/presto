@@ -1,9 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {ClusterHUD} from "./components/ClusterHUD";
-import {QueryInputBox} from "./components/QueryInputBox";
-import {QueryList} from "./components/QueryList";
 import {PageTitle} from "./components/PageTitle";
+import {PrestoInfo} from "./components/PrestoInfo";
+import {SparkInfo} from "./components/SparkInfo";
 
 ReactDOM.render(
     <PageTitle title="Gourd Store" />,
@@ -11,16 +10,11 @@ ReactDOM.render(
 );
 
 ReactDOM.render(
-    <ClusterHUD />,
-    document.getElementById('cluster-hud')
+    <PrestoInfo />,
+    document.getElementById('presto-info')
 );
 
 ReactDOM.render(
-    <QueryInputBox />,
-    document.getElementById('query-input')
-);
-
-ReactDOM.render(
-    <QueryList />,
-    document.getElementById('query-list')
+    <SparkInfo />,
+    document.getElementById('spark-info')
 );
