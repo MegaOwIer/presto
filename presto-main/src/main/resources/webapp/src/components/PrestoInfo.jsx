@@ -14,7 +14,7 @@
 
 import React from "react";
 import {ClusterHUD} from "./ClusterHUD";
-import {QueryBox} from "./QueryBox";
+import {PrestoQueryBox} from "./PrestoQueryBox";
 
 export class PrestoInfo extends React.Component {
     constructor(props) {
@@ -29,11 +29,10 @@ export class PrestoInfo extends React.Component {
                 <ClusterHUD />
             </div>
 
-            <div className="panel panel-primary">
+            <div className="panel panel-warning">
                 <div className="panel-heading">Presto Query Box</div>
-                <QueryBox />
+                <PrestoQueryBox top_level={this.props.father_node} />
             </div>
-
         </div>);
     }
 }
