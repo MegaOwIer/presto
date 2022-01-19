@@ -13,8 +13,6 @@
  */
 
 import React from "react";
-import {SparkQueryInputBox} from "./SparkQueryInputBox";
-import {PrestoQueryList} from "./PrestoQueryList";
 
 export class SparkInfo extends React.Component {
     constructor(props) {
@@ -40,8 +38,8 @@ export class SparkInfo extends React.Component {
 
         $.get('http://112.126.79.236:8001/json', function (json) {
             // apps
-            let appID = "-1";
-            let duration = 0;
+            let appID;
+            let duration;
             if (json["activeapps"].length > 0) {
                 appID = json["activeapps"][json["activeapps"].length - 1].id;
                 duration = json["activeapps"][json["activeapps"].length - 1].duration;
@@ -54,7 +52,7 @@ export class SparkInfo extends React.Component {
             }
 
             // drivers
-            let driverID = "-1";
+            let driverID;
             if (json["activedrivers"].length > 0) {
                 driverID = json["activedrivers"][json["activedrivers"].length - 1].id;
             } else if (json["completeddrivers"].length > 0) {
@@ -107,15 +105,16 @@ export class SparkInfo extends React.Component {
                                         Driver ID: &nbsp;&nbsp; {this.state.driverID}
                                     </div>
                                     <div data-placement="bottom">
-                                        Application ID: &nbsp;&nbsp; {this.state.appID}
+                                        Application ID: &nbsp;&nbsp;
+                                        <a href={ 'http://112.126.79.236:8001/app/?appId=' + this.state.appID }>{this.state.appID}</a>
                                     </div>
                                 </div>
 
                                 <div className="row stat-row">
                                     <div className="col-xs-12">
-                                        <span data-toggle="tooltip" data-placement="top" style={{fontSize: "24px"}}
+                                        <span data-toggle="tooltip" data-placement="top" style={{fontSize: "32px", color: "#fcf8e3"}}
                                               title="Total query wall time">
-                                            &nbsp;&nbsp; Real Time: {this.state.duration / 1000} s
+                                            &nbsp;&nbsp; Real Time: { this.state.duration / 1000}s
                                         </span>
                                     </div>
                                 </div>

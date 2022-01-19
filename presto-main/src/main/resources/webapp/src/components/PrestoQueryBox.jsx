@@ -51,7 +51,7 @@ export class PrestoQueryBox extends React.Component {
                             </div>
                             <div className="tab-pane" id="presto-result">
                                 <pre style={{minHeight: "150px"}}>
-                                    { this.state.result_columns.join(' | ') + "\n" }
+                                    { this.state.result_columns.join(',') + "\n" }
                                     { this.state.result_data.join('\n') }
                                 </pre>
                             </div>

@@ -117,7 +117,6 @@ export class PrestoQueryInputBox extends React.Component {
                         object.setState({
                             result_data: object.state.result_data.concat(json.data).slice(0, MAX_LENGTH)
                         });
-                        // console.log(json.data);
                     }
                     if ('nextUri' in json) {
                         followQuery(json.nextUri, followRequestOptions, object);
@@ -140,12 +139,30 @@ export class PrestoQueryInputBox extends React.Component {
     }
 
     render() {
+        const prepared_queries = [
+            "SHOW catalogs;",
+            "SHOW schemas from tpcds"
+        ];
+
+        const queryDatalist = prepared_queries.map(function (query, idx) {
+            return (
+                <option key={"preq_" + (idx + 1)} value={query}>Query #{idx + 1}</option>
+            );
+        });
+
         return (
             <div className="row">
                 <div className="toolbar-col">
                     <div className="input-group input-group-sm">
-                        <textarea type="text" style={{resize: "none"}} className="form-control form-control-small search-bar"
-                                  placeholder="Input your query here." onChange={this.handleChange} value={this.state.query_str} />
+                        <input placeholder="Input your query here." className="form-control form-control-small search-bar"
+                               list="some_queries" onChange={this.handleChange} value={this.state.query_str} />
+                        <datalist id="some_queries">
+                            {queryDatalist}
+                        </datalist>
+
+
+                        {/*<textarea type="text" style={{resize: "none", height: "auto"}} className="form-control form-control-small search-bar"*/}
+                        {/*          placeholder="Input your query here." onChange={this.handleChange} value={this.state.query_str} />*/}
                         <div className="input-group-btn">
                             <button type="button" className="btn btn-default" onClick={this.executeQuery}>Submit</button>
                         </div>

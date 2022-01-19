@@ -38,6 +38,9 @@ pre {
     color: #999;
     background-color: #2C2F38;
     border: none;
+    white-space: pre-wrap;
+    word-break: normal;
+    font-size: 16px;
 }
 
 /** Boostrap overrides **/
@@ -189,7 +192,6 @@ pre {
 .navbar img {
     width: auto;
     height: 100px;
-    padding-top: 15px;
 }
 
 @media (min-width: 768px) {
