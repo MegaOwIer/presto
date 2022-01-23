@@ -14,32 +14,19 @@
 
 import React from "react";
 
-import {
-    truncateString
-} from "../utils";
+import query_code_1 from "!!raw-loader!../SparkQuery/UniSelectQuery1.scala";
+import query_code_2 from "!!raw-loader!../SparkQuery/UniSelectQuery2.scala";
+import query_code_3 from "!!raw-loader!../SparkQuery/UniSelectQuery3.scala";
 
 export class SparkQueryInputBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            jar_name: '',
-            class_name: '',
-            app_args: '',
-            spark_properties: {
-                "spark.master": "spark://172.17.197.143:7077",
-                "spark.driver.memory": "1g",
-                "spark.driver.cores": "1",
-                "spark.worker.memory": "1g",
-                "spark.worker.cores": "1",
-                "spark.driver.supervise": "true"
-            },
+            query_id: '',
             errorMessage: ''
         };
 
-        this.handleChangeJarName = this.handleChangeJarName.bind(this);
-        this.handleChangeClassName = this.handleChangeClassName.bind(this);
-        this.handleChangeArgs = this.handleChangeArgs.bind(this);
-        this.handleChangeProps = this.handleChangeProps.bind(this);
+        this.handleChangeSelect = this.handleChangeSelect.bind(this);
         this.executeQuery = this.executeQuery.bind(this);
     }
 
@@ -51,53 +38,43 @@ export class SparkQueryInputBox extends React.Component {
         return JSON.parse(json);
     }
 
-    handleChangeJarName(event) {
+    handleChangeSelect(event) {
         this.setState({
-            jar_name: event.target.value
-        });
-    }
-
-    handleChangeClassName(event) {
-        this.setState({
-            class_name: event.target.value
-        });
-    }
-
-    handleChangeArgs(event) {
-        this.setState({
-            app_args: event.target.value
-        });
-    }
-
-    handleChangeProps(event) {
-        this.setState({
-            spark_properties: SparkQueryInputBox.json2Obj(event.target.value)
+            query_id: event.target.value
         });
     }
 
     executeQuery(event) {
-        this.state.spark_properties["spark.jars"] = this.state.jar_name;
+        const jar_name = "/home/kingbaseUAE/spark-3.1.2/SparkProject/target/SparkProject-1.0-SNAPSHOT.jar";
+        const class_name = "cn.edu.ruc.luowenxu.neo4j." + this.state.query_id;
 
         let requestBody = {
-            "appResource": this.state.jar_name,
+            "appResource": jar_name,
             "clientSparkVersion": "3.1.2",
-            "mainClass": this.state.class_name,
+            "mainClass": class_name,
             "action": "CreateSubmissionRequest",
             "environmentVariables": {
                 "SPARK_ENV_LOADED": "1"
             },
-            "sparkProperties": this.state.spark_properties,
-            "appArgs": [this.state.app_args]
+            "sparkProperties": {
+                "spark.master": "spark://worker204:8002",
+                "spark.driver.memory": "5g",
+                "spark.driver.cores": "1",
+                "spark.executor.memory": "30g",
+                "spark.executor.cores": "4",
+                "spark.executor.instances": "2",
+                "spark.app.name": this.state.query_id,
+                "spark.driver.supervise": "true",
+                "spark.jars": jar_name
+            },
+            "appArgs": []
         };
         let queryRequest = {
             method: 'POST',
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8"
-            },
             body: SparkQueryInputBox.obj2Json(requestBody)
         };
 
-        let driverID = fetch('http://112.126.79.236:6066/v1/submissions/create/', queryRequest)
+        fetch('http://10.77.50.204:6066/v1/submissions/create/', queryRequest)
             .then(function(response) {
                 if (!response.ok) {
                     console.log("Error")
@@ -106,59 +83,53 @@ export class SparkQueryInputBox extends React.Component {
                 return response.json()
             })
             .then(function(json) {
-                return json["submissionId"];
+                console.log(json)
             });
 
         this.setState({
-            jar_name: '',
-            class_name: '',
-            app_args: '',
-            spark_properties: {
-                "spark.master": "spark://172.17.197.143:7077",
-                "spark.driver.memory": "1g",
-                "spark.driver.cores": "1",
-                "spark.worker.memory": "1g",
-                "spark.worker.cores": "1",
-                "spark.driver.supervise": "true"
-            },
+            query_id: '',
             errorMessage: ''
         });
+
+        let query_code;
+        switch (this.state.query_id) {
+            case "UniSelectQuery1":
+                query_code = query_code_1;
+                break;
+            case "UniSelectQuery2":
+                query_code = query_code_2;
+                break;
+            case "UniSelectQuery3":
+                query_code = query_code_3;
+                break;
+            default:
+                query_code = "Unknown";
+        }
+
         this.props.father_node.setState({
-            driverID: driverID
+            query_code: query_code
         });
+
         event.preventDefault();
     }
 
     render() {
+        let spark_queries = [ "UniSelectQuery1", "UniSelectQuery2", "UniSelectQuery3"];
+        spark_queries = spark_queries.map(function (str, idx) {
+            return (
+                <option value={str} key={"Spark_" + (idx+1)}>Query #{idx+1}: {str}</option>
+            );
+        });
+
         return (
             <div className="row">
                 <div className="toolbar-col">
                     <div className="input-group input-group-sm">
-                        <div>
-                            <label>Target jars: </label>
-                            <input type="text" className="form-control form-control-small search-bar"
-                                   placeholder="Choose a .jar file." onChange={this.handleChangeJarName} value={this.state.jar_name} />
-                        </div>
-
-                        <div>
-                            <label>Main Class Name: </label>
-                            <input type="text" className="form-control form-control-small search-bar"
-                                   placeholder="Main class name." onChange={this.handleChangeClassName} value={this.state.class_name} />
-                        </div>
-
-                        <div>
-                            <label>Arguments: </label>
-                            <input type="text" className="form-control form-control-small search-bar"
-                                   placeholder="Args." onChange={this.handleChangeArgs} value={this.state.app_args} />
-                        </div>
-
-                        <div>
-                            <label>Spark Properties: </label>
-                            <textarea type="text" className="form-control form-control-small search-bar"
-                                      style={{height: '120px', resize: "none"}}
-                                      placeholder="Input your query here." onChange={this.handleChangeProps}
-                                      value={SparkQueryInputBox.obj2Json(this.state.spark_properties)} />
-                        </div>
+                        <input placeholder="Select a Spark query." className="form-control form-control-small search-bar"
+                               list="some_spark_queries" onChange={this.handleChangeSelect} value={this.state.query_id} />
+                        <datalist id="some_spark_queries">
+                            {spark_queries}
+                        </datalist>
 
                         <div className="input-group-btn">
                             <button type="button" className="btn btn-default" onClick={this.executeQuery}>Submit</button>

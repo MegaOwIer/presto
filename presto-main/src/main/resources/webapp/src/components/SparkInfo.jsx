@@ -13,15 +13,19 @@
  */
 
 import React from "react";
+import {SparkQueryInputBox} from "./SparkQueryInputBox";
 
 export class SparkInfo extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             driverID: '',
+            driverState: '',
             appID: '',
             duration: 0,
-            initialized: false
+            appState: '',
+            initialized: false,
+            query_code: ''
         };
 
         this.refreshLoop = this.refreshLoop.bind(this);
@@ -36,35 +40,42 @@ export class SparkInfo extends React.Component {
     refreshLoop() {
         clearTimeout(this.timeoutId); // to stop multiple series of refreshLoop from going on simultaneously
 
-        $.get('http://112.126.79.236:8001/json', function (json) {
+        $.get('http://10.77.50.204:8060/json/', function (json) {
             // apps
-            let appID;
-            let duration;
+            let appID, duration, appState;
             if (json["activeapps"].length > 0) {
                 appID = json["activeapps"][json["activeapps"].length - 1].id;
                 duration = json["activeapps"][json["activeapps"].length - 1].duration;
+                appState = "(" + json["activeapps"][json["activeapps"].length - 1].state + ")";
             } else if (json["completedapps"].length > 0) {
                 appID = json["completedapps"][json["completedapps"].length - 1].id;
                 duration = json["completedapps"][json["completedapps"].length - 1].duration;
+                appState = "(" + json["completedapps"][json["completedapps"].length - 1].state + ")";
             } else {
                 appID = "";
                 duration = 0;
+                appState = "";
             }
 
             // drivers
-            let driverID;
+            let driverID, driverState;
             if (json["activedrivers"].length > 0) {
                 driverID = json["activedrivers"][json["activedrivers"].length - 1].id;
+                driverState = "(" + json["activedrivers"][json["activedrivers"].length - 1].state + ")";
             } else if (json["completeddrivers"].length > 0) {
                 driverID = json["completeddrivers"][json["completeddrivers"].length - 1].id;
+                driverState = "(" + json["completeddrivers"][json["completeddrivers"].length - 1].state + ")";
             } else {
                 driverID = "";
+                driverState = "";
             }
 
             this.setState({
                 driverID: driverID,
+                driverState: driverState,
                 appID: appID,
                 duration: duration,
+                appState: appState,
                 initialized: true
             });
             this.props.father_node.setState({
@@ -89,9 +100,9 @@ export class SparkInfo extends React.Component {
         <div>
             <div className="panel panel-warning">
                 <div className="panel-heading">Spark Query Box</div>
-                {/*<div className="panel-body">*/}
-                {/*    <SparkQueryInputBox father_node={this} />*/}
-                {/*</div>*/}
+                <div className="panel-body">
+                    <SparkQueryInputBox father_node={this} />
+                </div>
                 <div className="panel-footer">
                     <div className="tabbable">
                         <ul className="nav nav-tabs">
@@ -102,11 +113,12 @@ export class SparkInfo extends React.Component {
                             <div className="tab-pane active" id="spark-details">
                                 <div className="row stat-row query-header query-header-queryid">
                                     <div data-placement="bottom">
-                                        Driver ID: &nbsp;&nbsp; {this.state.driverID}
+                                        Driver ID: &nbsp;&nbsp; {this.state.driverID} &nbsp; {this.state.driverState}
                                     </div>
                                     <div data-placement="bottom">
                                         Application ID: &nbsp;&nbsp;
-                                        <a href={ 'http://112.126.79.236:8001/app/?appId=' + this.state.appID }>{this.state.appID}</a>
+                                        <a href={ 'http://10.77.50.204:8060/app/?appId=' + this.state.appID }>{this.state.appID}</a> &nbsp;
+                                        {this.state.appState}
                                     </div>
                                 </div>
 
@@ -114,14 +126,14 @@ export class SparkInfo extends React.Component {
                                     <div className="col-xs-12">
                                         <span data-toggle="tooltip" data-placement="top" style={{fontSize: "32px", color: "#fcf8e3"}}
                                               title="Total query wall time">
-                                            &nbsp;&nbsp; Real Time: { this.state.duration / 1000}s
+                                            &nbsp;&nbsp; Real Time: { this.state.duration / 1000 }s
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div className="tab-pane" id="spark-code">
-                                <pre style={{minHeight: "150px"}}>
-                                    Query Code.
+                                <pre style={{fontStyle: "13px"}}>
+                                    { this.state.query_code }
                                 </pre>
                             </div>
                         </div>

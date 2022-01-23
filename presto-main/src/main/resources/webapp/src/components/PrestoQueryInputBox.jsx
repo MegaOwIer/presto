@@ -140,13 +140,14 @@ export class PrestoQueryInputBox extends React.Component {
 
     render() {
         const prepared_queries = [
-            "SHOW catalogs;",
-            "SHOW schemas from tpcds"
+            "SHOW catalogs",
+            "SELECT * FROM system.runtime.nodes",
+            "SHOW TABLES FROM hive.default"
         ];
 
         const queryDatalist = prepared_queries.map(function (query, idx) {
             return (
-                <option key={"preq_" + (idx + 1)} value={query}>Query #{idx + 1}</option>
+                <option key={"preq_" + (idx+1)} value={query}>Query #{idx + 1}</option>
             );
         });
 
@@ -155,14 +156,11 @@ export class PrestoQueryInputBox extends React.Component {
                 <div className="toolbar-col">
                     <div className="input-group input-group-sm">
                         <input placeholder="Input your query here." className="form-control form-control-small search-bar"
-                               list="some_queries" onChange={this.handleChange} value={this.state.query_str} />
-                        <datalist id="some_queries">
+                               list="some_presto_queries" onChange={this.handleChange} value={this.state.query_str} />
+                        <datalist id="some_presto_queries">
                             {queryDatalist}
                         </datalist>
 
-
-                        {/*<textarea type="text" style={{resize: "none", height: "auto"}} className="form-control form-control-small search-bar"*/}
-                        {/*          placeholder="Input your query here." onChange={this.handleChange} value={this.state.query_str} />*/}
                         <div className="input-group-btn">
                             <button type="button" className="btn btn-default" onClick={this.executeQuery}>Submit</button>
                         </div>

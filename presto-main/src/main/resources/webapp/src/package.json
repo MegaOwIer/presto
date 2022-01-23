@@ -5,7 +5,7 @@
   "private": true,
   "devDependencies": {
     "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.5",
+    "babel-loader": "7",
     "babel-preset-env": "^1.7.0",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-react": "^6.24.1",
@@ -16,6 +16,7 @@
   "dependencies": {
     "d3": "^5.7.0",
     "dagre-d3": "^0.6.1",
+    "raw-loader": "^4.0.2",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "reactable": "^1.0.2"

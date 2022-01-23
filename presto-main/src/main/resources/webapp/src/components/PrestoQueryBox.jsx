@@ -45,12 +45,12 @@ export class PrestoQueryBox extends React.Component {
                                 <PrestoQueryList top_level={this.props.top_level} searchString="Gourd Store WebUI" />
                             </div>
                             <div className="tab-pane" id="presto-code">
-                                <pre style={{minHeight: "150px"}}>
+                                <pre>
                                     { this.state.lastQueryStr }
                                 </pre>
                             </div>
                             <div className="tab-pane" id="presto-result">
-                                <pre style={{minHeight: "150px"}}>
+                                <pre style={{wordBreak: "break-all"}}>
                                     { this.state.result_columns.join(',') + "\n" }
                                     { this.state.result_data.join('\n') }
                                 </pre>
