@@ -18,6 +18,17 @@ import {
     truncateString
 } from "../utils";
 
+import query_code_1 from "!!raw-loader!../SampleQuery/Presto/query1.sql";
+import query_code_2 from "!!raw-loader!../SampleQuery/Presto/query2.sql";
+import query_code_3 from "!!raw-loader!../SampleQuery/Presto/query3.sql";
+import query_code_4 from "!!raw-loader!../SampleQuery/Presto/query4.sql";
+import query_code_5 from "!!raw-loader!../SampleQuery/Presto/query5.sql";
+import query_code_6 from "!!raw-loader!../SampleQuery/Presto/query6.sql";
+import query_code_7 from "!!raw-loader!../SampleQuery/Presto/query7.sql";
+import query_code_8 from "!!raw-loader!../SampleQuery/Presto/query8.sql";
+import query_code_9 from "!!raw-loader!../SampleQuery/Presto/query9.sql";
+import query_code_10 from "!!raw-loader!../SampleQuery/Presto/query10.sql";
+
 export class PrestoQueryInputBox extends React.Component {
     constructor(props) {
         super(props);
@@ -140,14 +151,16 @@ export class PrestoQueryInputBox extends React.Component {
 
     render() {
         const prepared_queries = [
-            "SHOW catalogs",
-            "SELECT * FROM system.runtime.nodes",
-            "SHOW TABLES FROM hive.default"
+            query_code_1, query_code_2, query_code_3, query_code_4, query_code_5,
+            query_code_6, query_code_7, query_code_8, query_code_9, query_code_10
         ];
 
         const queryDatalist = prepared_queries.map(function (query, idx) {
+            let arr = query.split('\n');
+            let explain = arr[0].slice(3);
+            let query_code = arr.slice(2).join('\n');
             return (
-                <option key={"preq_" + (idx+1)} value={query}>Query #{idx + 1}</option>
+                <option key={"preq_" + (idx+1)} value={query_code}>#{idx + 1}: { explain }</option>
             );
         });
 

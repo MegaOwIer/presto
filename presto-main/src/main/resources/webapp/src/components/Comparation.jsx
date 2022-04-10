@@ -20,6 +20,7 @@ export class Comp extends React.Component {
 
         this.updateFigure = this.updateFigure.bind(this)
         this.resetFigure = this.resetFigure.bind(this)
+        this.recallFigure = this.recallFigure.bind(this)
 
         this.option = {
             tooltip : {
@@ -88,7 +89,20 @@ export class Comp extends React.Component {
         this.option.series[0].data.push(this.props.father_node.state.presto_query_time);
         this.option.series[1].data.push(this.props.father_node.state.spark_query_time);
 
-        var myChart = echarts.init(document.getElementById('cmp_figure'));
+        let myChart = echarts.init(document.getElementById('cmp_figure'));
+        myChart.setOption(this.option);
+    }
+
+    recallFigure() {
+        if(this.option.xAxis[0].data.length === 0) {
+            return;
+        }
+
+        this.option.xAxis[0].data.pop();
+        this.option.series[0].data.pop();
+        this.option.series[1].data.pop();
+
+        let myChart = echarts.init(document.getElementById('cmp_figure'));
         myChart.setOption(this.option);
     }
 
@@ -103,6 +117,8 @@ export class Comp extends React.Component {
                         <button type="button" className="btn btn-default" onClick={this.resetFigure}>Reset</button>
                         &nbps;&nbps;
                         <button type="button" className="btn btn-default" onClick={this.updateFigure}>Update</button>
+                        &nbps;&nbps;
+                        <button type="button" className="btn btn-default" onClick={this.recallFigure}>Remove Last</button>
                     </div>
                 </div>
             </div>

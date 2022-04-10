@@ -14,9 +14,17 @@
 
 import React from "react";
 
-import query_code_1 from "!!raw-loader!../SparkQuery/UniSelectQuery1.scala";
-import query_code_2 from "!!raw-loader!../SparkQuery/UniSelectQuery2.scala";
-import query_code_3 from "!!raw-loader!../SparkQuery/UniSelectQuery3.scala";
+import query_code_1 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery1.scala";
+import query_code_2 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery2.scala";
+import query_code_3 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery3.scala";
+import query_code_4 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery4.scala";
+import query_code_5 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery5.scala";
+import query_code_6 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery6.scala";
+import query_code_7 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery7.scala";
+import query_code_8 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery8.scala";
+import query_code_9 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery9.scala";
+import query_code_10 from "!!raw-loader!../SampleQuery/Spark/UniSelectQuery10.scala";
+
 
 export class SparkQueryInputBox extends React.Component {
     constructor(props) {
@@ -57,12 +65,12 @@ export class SparkQueryInputBox extends React.Component {
                 "SPARK_ENV_LOADED": "1"
             },
             "sparkProperties": {
-                "spark.master": "spark://worker204:8002",
+                "spark.master": "spark://10.77.50.204:7077",
                 "spark.driver.memory": "5g",
                 "spark.driver.cores": "1",
-                "spark.executor.memory": "30g",
-                "spark.executor.cores": "4",
-                "spark.executor.instances": "2",
+                "spark.executor.memory": "45g",
+                "spark.executor.cores": "6",
+                "spark.executor.instances": "6",
                 "spark.app.name": this.state.query_id,
                 "spark.driver.supervise": "true",
                 "spark.jars": jar_name
@@ -91,20 +99,11 @@ export class SparkQueryInputBox extends React.Component {
             errorMessage: ''
         });
 
-        let query_code;
-        switch (this.state.query_id) {
-            case "UniSelectQuery1":
-                query_code = query_code_1;
-                break;
-            case "UniSelectQuery2":
-                query_code = query_code_2;
-                break;
-            case "UniSelectQuery3":
-                query_code = query_code_3;
-                break;
-            default:
-                query_code = "Unknown";
-        }
+        const query_codes = [
+            query_code_1, query_code_2, query_code_3, query_code_4, query_code_5,
+            query_code_6, query_code_7, query_code_8, query_code_9, query_code_10
+        ];
+        let query_code = query_codes[this.state.query_id.slice(14) - 1];
 
         this.props.father_node.setState({
             query_code: query_code
@@ -114,7 +113,10 @@ export class SparkQueryInputBox extends React.Component {
     }
 
     render() {
-        let spark_queries = [ "UniSelectQuery1", "UniSelectQuery2", "UniSelectQuery3"];
+        let spark_queries = [ ];
+        for (let id = 1; id <= 10; id += 1) {
+            spark_queries.push("UniSelectQuery" + id);
+        }
         spark_queries = spark_queries.map(function (str, idx) {
             return (
                 <option value={str} key={"Spark_" + (idx+1)}>Query #{idx+1}: {str}</option>

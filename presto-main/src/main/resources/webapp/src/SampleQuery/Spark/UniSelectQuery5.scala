@@ -1,0 +1,70 @@
+package cn.edu.ruc.luowenxu.neo4j
+
+import org.apache.spark._
+import org.apache.spark.sql.{SaveMode, SparkSession}
+import com.mongodb.spark._
+import com.mongodb.spark.config._
+import org.apache.spark.sql
+import org.apache.spark.sql.functions.{col, concat, explode, lit, struct}
+
+
+object UniSelectQuery5 {
+  def main(args: Array[String]): Unit = {
+
+    val start = System.currentTimeMillis
+
+    val spark = SparkSession.builder()
+      .config("neo4j.url", "bolt://10.77.50.204:8001")
+      .config("neo4j.authentication.type", "basic")
+      .config("neo4j.authentication.basic.username", "neo4j")
+      .config("neo4j.authentication.basic.password", "neo4j_test")
+      .config("spark.mongodb.input.uri", "mongodb://10.77.50.203:27017/unibench.orders_10?authSource=admin")
+      .getOrCreate()
+
+    import spark.implicits._
+
+    val sc = spark.sparkContext
+
+    val feedback = spark.read
+      .format("jdbc")
+      .option("url", "jdbc:kingbase8://112.126.79.236:54321/unibench")
+      .option("dbtable", "feedback_10")
+      .option("user", "kingbase")
+      .option("password", "kingbase-test")
+      .load()
+    feedback.createOrReplaceTempView("f")
+    val feedbackvalue = spark.sql("select * from f where feedback like '%5.0%'")
+    feedbackvalue.createOrReplaceTempView("fv")
+
+    // 图查询
+    val dfn = spark.read.format("org.neo4j.spark.DataSource")
+            .option("query", "match (:person_10{id:'4398046556981'})-[:knows_10]-(q:person_10) return q.id as qid")
+            .load()
+    dfn.createOrReplaceTempView("dfn")
+    dfn.show()
+
+    //文档查询
+    val sqlContext = spark.sqlContext
+    val mongodbReadConfiguration = ReadConfig(Map("database" -> "unibench", "collection" -> "orders_10", "readPreference.name" -> "primaryPreferred"), Some(ReadConfig(spark)))
+    val orders = MongoSpark.load(spark, mongodbReadConfiguration)
+    val ol = orders.select(orders.col("personid"), explode(orders.col("Orderline"))).toDF("personid", "Orderline")
+    ol.createOrReplaceTempView("ol")
+    ol.show()
+    
+    val oll = spark.sql("select * from ol where orderline.productid = '6406' limit 5")
+    oll.createOrReplaceTempView("oll")
+    oll.show()
+
+    val dfh = spark.sql("select fv.personid, fv.feedback from dfn join fv on fv.personid = qid join oll on oll.personid = qid")
+    dfh.show()
+    
+
+    val end = System.currentTimeMillis
+    printf("Query 5 Run Time = %f[s]\n", (end - start) / 1000.0)
+    printf("with dfn as (match (:person_10{id:'4145'})-[:knows_10]-(q:person_10) return q.id as qid),\n with ol as (mongodb.unibench.orders.orderline),\n with oll as (select * from ol where orderline.productid = '6406' limit 5),\n with f as (hbase.default.feedback),\n select f.personid, f.feedback from dfn join f on f.personid = qid join oll on oll.personid = qid where f.feedback like '5.0'\n")
+
+    spark.close()
+    sc.stop();
+  }
+}
+
