@@ -246,7 +246,7 @@ export class ClusterHUD extends React.Component {
                     </div>
                 </div>
                 <div className="input-group-btn" align="center">
-                    <a href="#" target="_blank">
+                    <a href="http://10.77.50.201:30333/" target="_blank">
                         <button type="button" className="btn btn-default">To Scalability Monitor</button>
                     </a>
                 </div>
